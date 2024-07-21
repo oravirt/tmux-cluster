@@ -34,6 +34,7 @@ Options:
     -h              Display help message and quit.
     -d              Dump space-separated list of hosts in CLUSTERNAME.
                         Conflicts with -t option.
+    -o              Additional SSH arguments
     -t              Dump generated list of tmux commands.
                         Conflicts with -d option.
     -c CLUSTERLINE  Create custom cluster
@@ -90,12 +91,15 @@ EXCLUDED_HOSTS=""
 USE_EXISTING_SESSION=""
 
 # parse args
-while getopts :hdtc:x:w OPT; do
+while getopts :hdtc:o:x:w OPT; do
     case $OPT in
         h)
             usage
             exit
             ;;
+		o)
+	       SSH_OPTIONS="$OPTARG"
+           ;;
         d)
             DUMP_HOSTS="true"
             ;;
@@ -139,6 +143,14 @@ if [ -n "$DUMP_HOSTS" -a -n "$DUMP_TMUX_CMDS" ]; then
     echo "error: -d and -t options conflict" 1>&2
     usage 1>&2
     exit "$ERR_ARG"
+fi
+
+#shift
+if [ -z "${SSH_OPTIONS}" ];then
+    if [ $# -eq 1 ]; then
+        usage 1>&2
+        exit 2
+    fi
 fi
 
 CONF="$HOME/.clusterssh/clusters"
@@ -240,7 +252,7 @@ else
     HOSTS=""
 fi
 
-SHELL_CMD="ssh $HOST; [ \$? -eq 255 ] && (echo Press ENTER to close pane; read enter)"
+SHELL_CMD="ssh ${SSH_OPTIONS} $HOST; [ \$? -eq 255 ] && (echo Press ENTER to close pane; read enter)"
 
 # if we're running in tmux, get dimensions of the current window
 # this is needed if tmc is run inside run-shell, since the default window size is 80x24
@@ -263,7 +275,7 @@ else
 fi
 
 for HOST in $HOSTS; do
-    SHELL_CMD="ssh $HOST; [ \$? -eq 255 ] && (echo Press ENTER to close pane; read enter)"
+    SHELL_CMD="ssh ${SSH_OPTIONS} $HOST; [ \$? -eq 255 ] && (echo Press ENTER to close pane; read enter)"
     TMUX_CMDS="${TMUX_CMDS}splitw $TMUX_SESSION_T_ARG \"$SHELL_CMD\"$NL"
     TMUX_CMDS="${TMUX_CMDS}select-layout $TMUX_SESSION_T_ARG tiled$NL"
 done
