@@ -146,7 +146,7 @@ if [ -n "$DUMP_HOSTS" -a -n "$DUMP_TMUX_CMDS" ]; then
 fi
 
 #shift
-if [ -z "${SSH_OPTIONS}" ];then
+if [ "${SSH_OPTIONS}" ];then
     if [ $# -eq 1 ]; then
         usage 1>&2
         exit 2
