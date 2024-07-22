@@ -97,8 +97,8 @@ while getopts :hdtc:o:x:w OPT; do
             usage
             exit
             ;;
-		o)
-	       SSH_OPTIONS="$OPTARG"
+        o)
+           SSH_OPTIONS="$OPTARG"
            ;;
         d)
             DUMP_HOSTS="true"
