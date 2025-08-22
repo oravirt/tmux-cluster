@@ -147,7 +147,7 @@ fi
 
 #shift
 if [ "${SSH_OPTIONS}" ];then
-    if [ $# -eq 1 ]; then
+    if [ $# -lt 1 ]; then
         usage 1>&2
         exit 2
     fi
